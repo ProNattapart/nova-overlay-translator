@@ -1,27 +1,34 @@
 # Auto Capture Game Script (Real Time)
 
-Real-time game dialogue capture + translation overlay.
+Real-time game dialogue capture + translation overlay for PC games.
 
-- Captures the screen
-- Extracts text via **EasyOCR** or lets the **LLM read the image**
-- Translates via **OpenRouter**
-- Displays the translated text on a **PyQt6 always-on-top overlay**
+It can:
+- Capture the screen (full screen or selected region)
+- Extract text via **EasyOCR** (OCR mode) or let an **LLM read the image** (LLM mode)
+- Translate using **OpenRouter**
+- Display translations in a **PyQt6 always-on-top overlay**
+
+---
 
 ## Requirements
 
 - Python **3.10+**
-- OS: tested primarily on **Windows** (uses the `keyboard` global hotkey hook)
+- **Windows recommended** (uses `keyboard` for global hotkeys; other OSes may need changes)
 - An **OpenRouter API key**
 
-> Note on OCR: `ocr.py` initializes EasyOCR with `gpu=True`. If you don’t have CUDA, you may need to change it to `gpu=False`.
+> OCR note: `ocr.py` initializes EasyOCR with `gpu=True`. If you don’t have CUDA, change it to `gpu=False` (OCR will be slower).
+
+---
 
 ## Install
 
-This repo is configured for [`uv`](https://github.com/astral-sh/uv).
+This repo is configured for [`uv`](https://github.com/astral-sh/uv):
 
 ```bash
 uv sync
 ```
+
+---
 
 ## Run
 
@@ -29,82 +36,113 @@ uv sync
 uv run python main.py
 ```
 
-On first launch, a **Settings** dialog opens. Configure and click **Save System Settings**.
+On first launch, the **Settings** dialog opens. Configure values and click **Save System Settings**.
 
-## Configuration (Settings dialog)
+---
 
-These values are stored via Qt `QSettings`:
+## Settings (Configuration)
 
+Settings are stored using Qt `QSettings`.
+
+### OpenRouter
 - **OpenRouter API Key**
-- **Model** (example suggestions)
+- **Model** (examples)
   - `google/gemma-4-26b-a4b-it` (normally 0.00006-0.0001 usd per request)
-  - `google/gemma-4-31b-it` (normally 0.00006-0.0001 usd per request but use a bit logger time)
-  - `google/gemini-3.1-flash-lite` (normally 0.0003-0.0004 usd per request but more consistent and low delay)
-- **Language Processing Direction**: `EN->TH`, `JP->TH`, `JP->EN`
-- **Text Extraction Engine Mode**
-  - `ocr`: use EasyOCR to extract text, then translate the text (use GPU, if you have no GPU It consume long time)
-  - `llm`: send the cropped image to the LLM and let it read/translate directly (recommend, it have high quality)
-- **Target Story Dataset (Context Tuning)**: extra prompt context from `llm_prompt.json`
-- **Translation Display Box Region**
-  - `ocr`: place subtitles near the detected OCR dialogue box (use GPU, if you have no GPU It consume long time)
-  - `fixed`: place subtitles in a fixed region (Re commend to use this, pick/reset in settings)
-- **Subtitles Display Duration (Seconds)**
+  - `google/gemma-4-31b-it` (normally 0.00006-0.0001 usd per request but use a bit logger time and have higher quality)
+  - `google/gemini-3.1-flash-lite` (normally 0.0003-0.0004 usd per request but more consistent have higher quality and low delay)
 
-## Hotkeys (defaults)
+### Translation
+- **Language direction**: `EN->TH`, `JP->TH`, `JP->EN`
+
+### Text extraction mode
+- **`ocr`**: EasyOCR extracts text → send extracted text to LLM for translation  
+  - Faster with GPU, slower on CPU
+- **`llm`**: send the cropped image to the LLM and let it read + translate directly  
+  - Usually best quality, recommended
+
+### Context tuning (optional)
+- **Target Story Dataset (Context Tuning)**: adds extra prompt context from `llm_prompt.json`
+
+### Overlay placement
+- **`ocr`**: place subtitles near the detected dialogue box (OCR-based)
+- **`fixed`**: place subtitles in a fixed region (recommended; set/reset in Settings)
+
+### Other
+- **Subtitles display duration (seconds)**
+
+---
+
+## Hotkeys
 
 All hotkeys are configurable in Settings.
 
-**Full Screen Translate**: capture full screen, when use in llm mode it will send full screen picture, It will see what screen is in and what character is talking(**Recommend**)
-**Manual Region Translate**: drag to select a region you want to translate, use when they have many text in screen (especially in playback log or setting screen)
-**Auto Segmentation Translate**: use OCR to make segmentation, use when they have high risk screen that may violate guardrail rule (use GPU if you not have one, you may use Manual Region Translate instead)
-**Toggle Overlay Visibility**: toggle overlay display
-**Open Settings**: Open settings
-**Quit**: because it is overlay program It will run in background, this program will be close by this key
+Actions:
+- **Full Screen Translate**: capture full screen (recommended for LLM mode: the model can infer context/speaker)
+- **Manual Region Translate**: drag-select a region (useful when the screen has multiple text blocks)
+- **Auto Segmentation Translate**: OCR-based segmentation (useful when you want to avoid sending full images to the LLM)
+- **Toggle Overlay Visibility**
+- **Open Settings**
+- **Quit**: closes the background overlay app
 
-you can set at 
-- one character such as `p`,`q`
-- two character such as `po`,`qr` (you must push both 2 key at the same time to trigger)
-- enter and space bar: `enter`,`space`
+Hotkey format:
+- Single key: `p`, `q`, ...
+- Two keys pressed together: `po`, `qr`, ...
+- Special keys: `enter`, `space`
 
-recommend for one key
-- Full Screen Translate: `p` 
-- Manual Region Translate: `l` (drag to select a region)
+Suggested bindings (single key):
+- Full Screen Translate: `p`
+- Manual Region Translate: `l`
 - Auto Segmentation Translate: `i`
 - Toggle Overlay Visibility: `o`
 - Open Settings: `s`
 - Quit: `q`
 
-recommend for two key
+Suggested bindings (two keys):
 - Full Screen Translate: `po`
-- Manual Region Translate: `pl` (drag to select a region)
+- Manual Region Translate: `pl`
 - Auto Segmentation Translate: `pi`
 - Toggle Overlay Visibility: `oi`
 - Open Settings: `st`
 - Quit: `qw` or `qr`
 
-recommend for game automate translate almost every time
-- Full Screen Translate: `enter` or `space` (depend on game you play)
+For “translate every dialogue” style automation:
+- Full Screen Translate: `enter` or `space` (depends on the game controls)
 
+---
 
-## Output folders
+## Prompt customization (`llm_prompt.json`)
+
+Before sending requests to the LLM, the app appends prompts from `llm_prompt.json`.
+
+It contains two prompt groups:
+- `language_prompt`: e.g. `EN->TH`, `JP->TH`, `JP->EN`
+- `specific_story_prompt`: per-game/story context (recommended to write in your target language)
+
+---
+
+## Output folders (debug)
 
 The app writes screenshots for debugging:
-
 - `image/raw/` – full captures
 - `image/to_llm/` – cropped images sent to the LLM (or full frame for full-screen mode)
 
+---
+
 ## Build an .exe (PyInstaller)
 
-See `to_exe_guide.txt` for the full checklist. In short, you’ll typically need to:
-
+See `to_exe_guide.txt`. Typically you must:
 - include the `image/` folder (and any config files you rely on)
 - collect EasyOCR (and sometimes `torch` / `cv2`) submodules
 
+---
+
 ## Troubleshooting
 
-- **“No text found”**: try `Full Screen Translate`, switch extraction mode to `llm`, or use `Manual Region Translate`.
+- **No text found**: try **Full Screen Translate**, switch extraction to **LLM**, or use **Manual Region Translate**.
 - **OpenRouter error**: verify API key and model name.
-- **Windows SSL/OpenSSL issue**: `main.py` clears `SSLKEYLOGFILE` on Windows to avoid AV-related OpenSSL problems.
+- **Windows SSL/OpenSSL issue**: `main.py` clears `SSLKEYLOGFILE` on Windows to avoid some AV-related OpenSSL problems.
+
+---
 
 ## License
 

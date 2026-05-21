@@ -1,0 +1,11 @@
+1.activate venv
+2. uv pip install pyinstaller auto-py-to-exe
+3. uv pip install -r requirements.txt
+4. run "auto-py-to-exe" in terminal
+5. scripts location : main.py
+6. Onefile: one directory
+7. console window : Window based
+8. Additional Files: .env and image folder
+9. Advanced:--collect-submodules -> add easyocr, torch, and cv2
+            --collect-all -> add easyocr
+            --uac-admin -> check to enable

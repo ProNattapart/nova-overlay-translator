@@ -123,7 +123,7 @@ class Overlay(QWidget):
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
         
         # Get screen size
-        screen = QApplication.primaryScreen().geometry()
+        screen = QApplication.primaryScreen().geometry() # type: ignore
         self.setGeometry(0, 0, screen.width(), screen.height())
         
         # Create a status label at the bottom left
@@ -175,7 +175,7 @@ class Overlay(QWidget):
         """Full-screen capture; overlay uses fixed region when configured."""
         if self._is_fixed_region():
             return ratios_to_bbox(self.settings)
-        screen_rect = QApplication.primaryScreen().geometry()
+        screen_rect = QApplication.primaryScreen().geometry() # type: ignore
         return (0, 0, screen_rect.width(), screen_rect.height())
 
     def process_screen(self):
@@ -364,7 +364,7 @@ class Overlay(QWidget):
     def display_translation(self, bbox, translated_text):
         x, y, w, h = bbox
         
-        screen_rect = QApplication.primaryScreen().geometry()
+        screen_rect = QApplication.primaryScreen().geometry() # type: ignore
         max_w = int(screen_rect.width() * 0.667)
 
         # Update label text
@@ -375,7 +375,7 @@ class Overlay(QWidget):
         
         # Position the label roughly over the detected bounding box
         # Ensure it doesn't go off screen
-        screen = QApplication.primaryScreen().geometry()
+        screen = QApplication.primaryScreen().geometry() # type: ignore
         label_w = self.translation_label.width()
         label_h = self.translation_label.height()
         

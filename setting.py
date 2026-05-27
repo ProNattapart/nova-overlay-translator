@@ -137,7 +137,7 @@ class SettingsDialog(QDialog):
         self.extract_text_mode_input.setFont(input_font) 
         self.extract_text_mode_input.addItems(["llm", "ocr"])
         self.extract_text_mode_input.setCurrentText(self.settings.value("extract_text_mode", "llm"))
-        add_setting_item("Text Extraction Engine Mode:", self.extract_text_mode_input)
+        #add_setting_item("Text Extraction Engine Mode:", self.extract_text_mode_input)
 
         self.region_mode_input = ComboBox()
         self.region_mode_input.setFont(input_font) 
@@ -210,7 +210,7 @@ class SettingsDialog(QDialog):
 
     def _refresh_region_label(self):
         if self._pending_ratios:
-            screen = QApplication.primaryScreen().geometry()
+            screen = QApplication.primaryScreen().geometry() # type: ignore
             x = int(screen.width() * self._pending_ratios["region_x_ratio"])
             y = int(screen.height() * self._pending_ratios["region_y_ratio"])
             w = int(screen.width() * self._pending_ratios["region_w_ratio"])

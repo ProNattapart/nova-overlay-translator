@@ -40,8 +40,8 @@ def extract_dialogue(image_pil, lang_list=['ja', 'en']):
     
     for bbox, text in results:
         # Calculate area of bounding box
-        x_coords = [point[0] for point in bbox]
-        y_coords = [point[1] for point in bbox]
+        x_coords = [int(point[0]) for point in bbox]
+        y_coords = [int(point[1]) for point in bbox]
         width = max(x_coords) - min(x_coords)
         height = max(y_coords) - min(y_coords)
         area = width * height
@@ -53,8 +53,8 @@ def extract_dialogue(image_pil, lang_list=['ja', 'en']):
             
     # For bounding box, return (left, top, width, height)
     if best_bbox:
-        x_coords = [point[0] for point in best_bbox]
-        y_coords = [point[1] for point in best_bbox]
+        x_coords = [int(point[0]) for point in best_bbox]
+        y_coords = [int(point[1]) for point in best_bbox]
         x_min = int(min(x_coords))
         y_min = int(min(y_coords))
         w = int(max(x_coords) - min(x_coords))

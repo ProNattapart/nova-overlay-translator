@@ -30,6 +30,8 @@ from region_utils import bbox_to_ratios, default_bbox_ratios, format_bbox, ratio
 
 with open("llm_prompt.json", 'r', encoding='utf-8') as f:
     llm_prompt_dict = json.load(f)
+    language_list = list(llm_prompt_dict.keys())
+    language_list.remove("specific_story_prompt")
     story_list = list(llm_prompt_dict.get("specific_story_prompt", {}).keys())
 
 
@@ -97,7 +99,7 @@ class SettingsDialog(QDialog):
 
         self.language_mode_input = ComboBox()
         self.language_mode_input.setFont(input_font) 
-        self.language_mode_input.addItems(["EN->TH", "JP->TH", "JP->EN"])
+        self.language_mode_input.addItems(language_list)
         self.language_mode_input.setCurrentText(self.settings.value("language_mode", "EN->TH"))
         add_setting_item("Language Processing Direction:", self.language_mode_input)
 

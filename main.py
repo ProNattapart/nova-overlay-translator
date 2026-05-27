@@ -3,6 +3,25 @@
 
 import sys
 import os
+import shutil
+
+
+def cleanup_image_temp():
+    """Remove leftover temp images from previous runs."""
+    print("Delete image_temp")
+    for dirpath in ("image/raw", "image/to_llm"):
+        if not os.path.isdir(dirpath):
+            continue
+        for name in os.listdir(dirpath):
+            path = os.path.join(dirpath, name)
+            try:
+                if os.path.isdir(path):
+                    shutil.rmtree(path)
+                else:
+                    os.remove(path)
+            except Exception as e:
+                print(f"Failed to delete {path}: {e}")
+
 
 # Avast and some AV tools set SSLKEYLOGFILE; on Windows that triggers
 # "no OPENSSL_Applink" when urllib3/OpenSSL initialize.
@@ -121,15 +140,12 @@ class Overlay(QWidget):
         self.show()
 
     def quit_app(self, event=None):
-        print("Delete image_temp")
-        dir_raw = "image/raw"
-        dir_to_llm = "image/to_llm"
-        for dir in [dir_raw, dir_to_llm]:
-            for file in os.listdir(dir):
-                os.remove(os.path.join(dir, file))
-
+        cleanup_image_temp()
         print("Quitting application...")
         os._exit(0)
+
+
+
 
     def on_hotkey_pressed(self, event=None):
         if self.is_processing:
@@ -410,7 +426,11 @@ if __name__ == '__main__':
     # Overlay is a Tool window; closing settings must not quit the app.
     app.setQuitOnLastWindowClosed(False)
 
+    # Clear temp images on startup as well.
+    cleanup_image_temp()
+
     dialog = SettingsDialog()
+
 
     if dialog.exec():
         ex = Overlay()
